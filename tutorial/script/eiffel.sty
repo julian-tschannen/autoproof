@@ -1,0 +1,93 @@
+
+\lstdefinelanguage{Eiffel}
+{
+	morekeywords={
+		across, agent, all, alias, and, as, assign, attached, attribute,
+		check, class, create,
+		debug, deferred, detachable, do,
+		else, elseif, end, ensure, expanded, export, external,
+		feature, from, frozen,
+		if, implies, infix, inherit, inspect, interface, invariant,
+		like, local, loop,
+		not, note,
+		obsolete, old, once, or,
+		prefix,
+		redefine, rename, require, rescue, retry,
+		select, separate, some,
+		then,
+		undefine, unique, until,
+		variant,
+		when,
+		xor,
+		assert,
+	},
+	morekeywords=[2]{
+		Current, False, Precursor, Result, True, Void,
+		% Exceptions
+		ExcV, Retry,
+	},
+	morekeywords=[3]{
+		ANY,NONE,TYPE,TUPLE,
+		INTEGER, NATURAL, REAL, DOUBLE, CHARACTER, STRING, BOOLEAN, INTERVAL, 
+		INTEGER_X, NATURAL_X, REAL_X, CHARACTER_X, NUMERIC,
+		ARRAY,LIST,
+		MML_SET,MML_BAG,MML_RELATION,MML_SEQUENCE,MML_MAP,MML_INTERVAL,
+		LCP,
+		% Examples
+		EXP, CONST, PLUS, ROOT, 
+		% Implementation
+		CLASS_C,
+		E2B_AUTOPROOF,E2B_RESULT,E2B_EXECUTABLE,
+		E2B_TRANSLATION_UNIT,E2B_TRANSLATION_POOL,
+		% Evaluation
+		BINARY_TREE,
+		% Verification assistant
+		CURSOR,COLLECTION,ARRAYED_LIST,ARRAY,
+		% Tutorial/Workshop
+		ACCOUNT,ACCOUNT_TEST,SIMPLE_ARRAY,SIMPLE_LIST,CLIENT,NODE,CLOCK,RING_BUFFER,TREE_NODE,
+	},
+	morekeywords=[4]{
+		creator,creator,decreases,decreases,dynamic,
+		ghost,functional,impure,inline,lemma,
+		model,modify,modify_field,modify_model,
+		reads,reads_field,reads_model,
+		skip,status,assume,old_,
+		explicit,contracts,wrapping,
+	}
+	sensitive,
+	literate={<}{{$<$}}{2}
+			{>}{{$>$}}{2}
+			{<=}{{$\!\leq$\,}}{1}
+			{>=}{{$\geq\,$}}{1}
+			{/=}{{$\neq\,$}}{1}
+			{~}{{$\sim\,$}}{1}
+			{/~}{{$\nsim\,$}}{1}
+			{=}{{$=\,$}}{1}
+			{<<}{{$\ll$}}{2}
+			{>>}{{$\gg$}}{2}
+			{...}{{$\cdots$}}{2}
+			{....}{{$\vdots$}}{1}
+	,
+	mathescape=true,
+	escapeinside={\#}{\#},
+	morecomment=[l]--,
+	morestring=[d]",
+	columns=fullflexible,
+	breaklines=true, 
+	tabsize=2,
+	identifierstyle=\color[HTML]{000000}\ttfamily,
+	commentstyle=\color[HTML]{990000}\itshape\ttfamily,
+	stringstyle=\color[HTML]{003300}, 
+	showstringspaces=false,
+	keywordstyle={\color[HTML]{222277}\bfseries\ttfamily},
+	keywordstyle=[2]{\color[HTML]{2233CC}\bfseries\ttfamily},
+	keywordstyle=[3]{\color[HTML]{2233CC}\ttfamily},
+	keywordstyle=[4]{\color[HTML]{000000}\itshape\ttfamily},
+	backgroundcolor=\color[rgb]{1,1,1},
+	numbers=left, 
+	numbersep=10pt,
+	numberstyle=\color[HTML]{333333}\tiny,
+	xleftmargin=20pt,
+ }[keywords,comments,strings]
+
+

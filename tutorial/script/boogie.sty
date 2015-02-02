@@ -1,0 +1,64 @@
+
+\lstdefinelanguage{Boogie}
+{
+	morekeywords={
+				assert,assume,axiom,break,call,complete,const,else,ensures,
+				exists,false,finite,forall,free,function,goto,havoc,if,implementation,
+				invariant,modifies,old,procedure,requires,return,returns,
+				then,true,type,unique,var,where,while},
+	morekeywords=[2]{
+				bool,int,real,ref,
+				Set,Seq,Rel,Map,Bag,
+				Type,Field,HeapType,
+	},
+	morekeywords=[3]{
+				Heap,Current,
+	},
+	sensitive,
+	literate=%
+			{:}{$\colon$}1
+			{::}{$\bullet$}2
+			{:=}{$:$$=$}2
+			{!}{$\lnot$}1
+			{==}{$=$}1
+			{!=}{$\neq$}1
+			{&&}{$\land$}1
+			{||}{$\lor$}1
+			{<=}{$\le$}1
+			{=>}{$\ge$}1
+			{==>}{$\Longrightarrow$}3
+			{<==}{$\Longleftarrow$}3
+			{<==>}{$\Longleftrightarrow$}4
+			{forall}{$\forall$}1
+			{exists}{$\exists$}1
+			{lambda}{$\lambda$}1
+			% the following isn't actually Boogie, but it gives the option to produce nicer latex
+			{<<}{$\langle$}1
+			{>>}{$\rangle$}1
+			{\\alpha}{$\alpha$}1
+			{\\beta}{$\beta$}1
+			{...}{$\cdots$}2
+			{....}{$\vdots$}1,
+	morecomment=[l]//,
+	morecomment=[s]{/*}{*/},
+	morestring=[d]{`}{'},
+	columns=flexible,
+	breaklines=true, 
+	tabsize=2,
+	identifierstyle=\color[HTML]{000000}\ttfamily,
+	commentstyle=\color[HTML]{990000}\itshape\ttfamily,
+	stringstyle=\color[HTML]{000000}, 
+	showstringspaces=false,
+	keywordstyle={\color[HTML]{BB2222}\bfseries\ttfamily},
+	keywordstyle=[2]{\color[HTML]{BB2222}\ttfamily},
+	keywordstyle=[3]{\color[HTML]{000000}\ttfamily},
+	backgroundcolor=\color[rgb]{1,1,1}, 
+	numbers=left, 
+	numbersep=10pt,
+	numberstyle=\color[HTML]{333333}\tiny,
+	mathescape=true,
+	escapeinside={\#}{\#},
+	xleftmargin=20pt,
+}[keywords,comments,strings]
+
+ 
