@@ -33,10 +33,10 @@
 % Title
 \title{\AutoProof Tutorial}
 \author{Chair of Software Engineering, ETH Zurich}
-\date{January 2015}
+\date{March 2015}
 
 % Header
-\fancyhead[R]{January 2015}
+\fancyhead[R]{March 2015}
 \fancyhead[L]{\AutoProof Tutorial}
 \fancyfoot[C]{\thepage}
 \setlength{\headheight}{15pt}
@@ -1076,25 +1076,58 @@ end
 \subsection{State of an Object}
 %===========================================================
 
+
 \AutoProof uses an invariant model where objects can be in a consistent state or in a potentially inconsistent state. Consistent objects are \emph{closed} and their class invariants are guaranteed to hold. Inconsistent objects are \emph{open} and their class invariant is potentially violated. Objects can only be modified when they are open, changing the value of an attribute is not allowed when an object is closed.
 
-\AutoProof supports a dynamic ownership model where objects can be \emph{owned} by other objects. The ownership relations can evolve during runtime. Objects that are unowned or whose owner is open are called \emph{free}. We define a shorthand for objects that are \emph{closed} and \emph{free} calling them \emph{wrapped}.
+\AutoProof supports a dynamic ownership model where objects can be \emph{owned} by other objects. The ownership relations can evolve during runtime. Objects that are unowned or whose owner is open are called \emph{free}. We define a shorthand for objects that are \emph{closed} and \emph{free} calling them \emph{wrapped}. When an object is in a consistent state, the ownership tree rooted in that object is guaranteed to be consistent as well.
 
-To model the object consistency and ownership relation, each objects has a boolean ghost field \e{closed}, a ghost field \e{owner} pointing to the potential owner of the object, and a ghost field \e{owns} that contains the set of all owned objects. \AutoProof offers ghost functions that can be used to query an object's state in assertions and specifications:
+To model the object consistency and ownership relation, each objects has a boolean ghost field \e{closed}, a ghost field \e{owner} pointing to the potential owner of the object, and a ghost field \e{owns} that contains the set of all owned objects. The relationship between the \e{owns} set and \e{owner} field is guaranteed to hold for objects in a consistent state. A special case is \e{Void} which is always \e{open}. \e{Void} can therefore never be owned and must not be part of the \e{owns} set.
+
+\begin{figure}[!htb]
+\begin{center}
+\includegraphics[width=\columnwidth]{objectstate.pdf}
+\end{center}
+\caption{Example of an object structure at run-time.} 
+\label{fig:objectstate}
+\end{figure}
+
+We illustrate the possible object states on the example object structure of Figure~\ref{fig:objectstate}. The object structure consist of six objects:
+
+\begin{itemize}
+\item Object \e{a} is \emph{closed}, therefore its class invariant is guaranteed to hold. It does not have an owner and thus is \emph{free}. As it is both free and closed, it is also \emph{wrapped}. The object \e{a} owns the two objects \e{b} and \e{c}. This is defined through its \e{owns} set, i.e. \e{a.owns = \{b, c\}}.
+
+\item Objects \e{b} and \e{c} are both owned by \e{a}, so their \e{owner} ghost field points to \e{a}. Since they are \emph{owned} they are \emph{not free}. As their owner \e{a} is \emph{closed}, the two objects \e{b} and \e{c} are \emph{closed} as well, as they are in \e{a}'s ownership domain.
+
+\item Object \e{d} is \emph{open} and may potentially be in an inconsistent state, so its class invariant is not guaranteed to hold. It does not have an owner and is therefore \emph{free}. The object \e{d} owns the two objects \e{e} and \e{f}, defined through its \e{owns} set.
+
+\item Object \e{e} is \emph{closed} and therefore consistent. Its owner is \e{d}, but since \e{d} is \emph{open}, \e{e} is considered to be \emph{free}. Being both \emph{closed} and \emph{free} means that \e{e} is \emph{wrapped}.
+
+\item Object \e{f} is \emph{open} and potentially inconsistent. Analogous to \e{e} it is \emph{free}, as its owner \e{d} is \emph{open}.
+\end{itemize}
+
+The example illustrates the difference between ownership trees of \emph{open} and \emph{closed} objects. While ownership trees of consistent objects are guaranteed to be consistent as well---all objects in the ownership tree including the root object are \emph{closed}---, this property does not hold for ownership trees of potentially inconsistent objects. The ownership tree of an \emph{open} object may contain objects that are \emph{open} and objects that are \emph{closed}.
+
+
+%===========================================================
+\subsection{Object State Queries}
+%===========================================================
+
+\AutoProof offers ghost functions that can be used to query an object's state in assertions and specifications:
 
 \begin{itemize}
 \item \e{is_wrapped: BOOLEAN} -- is the object wrapped (closed and free)?
 \item \e{is_free: BOOLEAN} -- is the object free (unowned or owner is open)?
 \item \e{is_open: BOOLEAN}  -- is the object open (potentially inconsistent)?
 \item \e{closed: BOOLEAN} -- is the object closed (consistent)?
-%\item \e{owner: ANY} -- owner of the object.
+\item \e{owner: ANY} -- owner of the object.
 \item \e{owns: MML_SET [ANY]} -- set of owned objects.
 \item \e{inv: BOOLEAN} -- does full invariant of the object hold?
 \item \e{inv_only (t): BOOLEAN} -- does the invariant with tag \emph{t} hold?
 \item \e{inv_without (t): BOOLEAN} -- does the invariant except for tag \emph{t} hold?
 \end{itemize}
 
-A special case is \e{Void} which is always \e{open}. \e{Void} can therefore never be owned and must not be part of the \e{owns} set.
+The last two functions \e{inv_only} and \e{inv_without} allow to reuse specification constructs. The argument to these functions is a list of manifest strings containing invariant tags. Given the class of Figure~\ref{code:tree_node} the condition that the \e{sequence} is consistent can be written as \e{inv_only ("sequence_def")}. This helps reduce the annotation burden for classes with comples class invariants.
+
 
 %===========================================================
 \subsection{Encoding Ownership}
@@ -1121,14 +1154,14 @@ With this encoding there is no need for the intermediate check instructions anym
 \subsection{Wrapping and Unwrapping} \label{sec:wrapping}
 %===========================================================
 
-The two ghost procedures \e{wrap} and \e{unwrap} are used to change an object from being \emph{unwrapped} to being \emph{wrapped} and vice versa. Figure~\ref{fig:objectconsistency} gives an overview of how the object consistency changes when these procedures are called. 
+The two ghost procedures \e{wrap} and \e{unwrap} are used to change an object from being \emph{unwrapped} to being \emph{wrapped} and vice versa. Figure~\ref{fig:wrapunwrap} gives an overview of how the object consistency changes when these procedures are called. 
 
 \begin{figure}[!htb]
 \begin{center}
-\includegraphics[width=\columnwidth]{objectconsistency.pdf}
+\includegraphics[width=\columnwidth]{wrapunwrap.pdf}
 \end{center}
 \caption{Change of object state on wrapping and unwrapping.}
-\label{fig:objectconsistency}
+\label{fig:wrapunwrap}
 \end{figure}
 
 Since wrapping and unwrapping changes the boolean ghost field \e{closed}, that field must be writable when either of these procedures are called. This is also the reason we had to add the field \e{closed} to the modifies clause in the \e{withdraw} procedure of the \emph{account} example (see Section~\ref{sec:framing}).
@@ -1168,12 +1201,12 @@ unwrap
 
 
 %----------------------------------------------
-\subsubsection*{Defaults}
+\subsection{Defaults}
 %----------------------------------------------
 
 \AutoProof uses implicit default contracts, default wrapping, and default assignments of ghost fields to remove the annotation burden. The default contracts and wrapping depend on type and visibility of routines. The default assignment to ghost fields depends on their definition.
 
-\textbf{Creation routines} require by default that all arguments are wrapped. In addition, the \e{Current} object will be implicitly wrapped at the end of the routine body and the postcondition will assert that \e{Current} is wrapped.
+\paragraph{Creation routines} require by default that all arguments are wrapped. In addition, the \e{Current} object will be implicitly wrapped at the end of the routine body and the postcondition will assert that \e{Current} is wrapped.
 \begin{erunning}
 make ($args$)
 	require
@@ -1187,7 +1220,7 @@ make ($args$)
 	end
 \end{erunning}
 
-\textbf{Pure functions} can by default be called on \emph{closed} objects. It is therefore not necessary to unwrap the object before calling a function. Also there is no default postcondition since the objects are not mutated during the execution.
+\paragraph{Pure functions} can by default be called on \emph{closed} objects. It is therefore not necessary to unwrap the object before calling a function. Also there is no default postcondition since the objects are not mutated during the execution.
 \begin{erunning}
 pure_function ($args$): $type$
 	require
@@ -1196,7 +1229,7 @@ pure_function ($args$): $type$
 	do ...	end
 \end{erunning}
 
-\textbf{Public procedures and public impure functions} require by default that all objects are in a consistent state, as they are callable from client code.
+\paragraph{Public procedures and public impure functions} require by default that all objects are in a consistent state, as they are callable from client code.
 \begin{erunning}
 public_procedure ($args$)
 	require
@@ -1212,7 +1245,7 @@ public_procedure ($args$)
 	end
 \end{erunning}
 
-\textbf{Private procedures and private impure functions} are only callable from a restricted set of clients, for example from the class itself. Since all public routines by default unwrap the \e{Current} object, private routines by default assume the object to be open.
+\paragraph{Private procedures and private impure functions} are only callable from a restricted set of clients, for example from the class itself. Since all public routines by default unwrap the \e{Current} object, private routines by default assume the object to be open.
 \begin{erunning}
 private_procedure ($args$)
 	require
@@ -1223,9 +1256,9 @@ private_procedure ($args$)
 	end
 \end{erunning}
 
-\textbf{Ghost fields} that have a definition in the class invariant of the form \e{$fieldname$ = $expression$} will be assigned implicitly every time the object is wrapped. This is the reason that the two ghost fields \e{owns} and \e{sequence} of the binary tree example are never explicitly assigned. \AutoProof assigns these fields implicitly at the end of each procedure when the implicit call to \e{wrap} takes place.
+\paragraph{Ghost fields} that have a definition in the class invariant of the form \e{$fieldname$ = $expression$} will be assigned implicitly every time the object is wrapped. This is the reason that the two ghost fields \e{owns} and \e{sequence} of the binary tree example are never explicitly assigned. \AutoProof assigns these fields implicitly at the end of each procedure when the implicit call to \e{wrap} takes place.
 
-\textbf{Functional functions} are often used in contracts and class invariants. Therefore they may operate on inconsistent objects and have no default preconditions.
+\paragraph{Functional functions} are often used in contracts and class invariants. Therefore they may operate on inconsistent objects and have no default preconditions.
 
 %----------------------------------------------
 \subsubsection*{Disabling Defaults}
